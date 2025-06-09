@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
+import numpy as np # Import numpy for generating sample data
 
 # Page config
 st.set_page_config(page_title="DashColor Preview", layout="wide")
@@ -12,30 +12,24 @@ if "dark_mode" not in st.session_state:
 # --- Style Reset and Base CSS ---
 st.markdown("""
 <style>
-    /* These target Streamlit's main content area to remove default padding */
-    .st-emotion-cache-z5fcl4 { /* This class might change with Streamlit updates */
-        padding-left: 0rem !important;
-        padding-right: 0rem !important;
-        padding-top: 0rem !important;
-    }
-    .st-emotion-cache-1jmve36 { /* This class might change with Streamlit updates */
-        padding-right: 0rem !important;
-        padding-left: 0rem !important;
-    }
-    /* Ensure the sidebar also doesn't push the content unnecessarily */
-    .st-emotion-cache-s8s42d { /* sidebar */
+    /* This targets Streamlit's main content area to remove default padding */
+    .st-emotion-cache-z5fcl4 {
+        padding-left: 0rem;
+        padding-right: 0rem;
         padding-top: 0rem;
     }
-
+    .st-emotion-cache-1jmve36 { /* Specific to wide layout main content padding */
+        padding-right: 0rem;
+        padding-left: 0rem;
+    }
 
     body { font-family: 'Segoe UI', sans-serif; }
 
     .dashboard-container {
         background-color: var(--bg-color);
-        padding: 2rem; /* Apply padding here for the whole dashboard */
+        padding: 2rem;
         border-radius: 12px;
         box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        margin: 1rem; /* Add some margin around the whole container if desired */
     }
 
     .header-box {
@@ -60,7 +54,7 @@ st.markdown("""
         font-size: 20px;
         font-weight: 600;
         margin: 2rem 0 1rem;
-        color: var(--section-title-color, #333); /* Made dynamic or fallback to #333 */
+        color: #333; /* This color isn't dynamic, consider making it a color var */
     }
 
     .kpi-grid {
@@ -96,14 +90,19 @@ st.markdown("""
         overflow: hidden; /* Hide overflowing chart elements */
     }
     /* Style for Streamlit's internal chart divs to fill the chart-box */
-    /* These classes are Streamlit-generated and might change in future versions */
-    .chart-box > div > div > div { /* Target the inner div that contains the chart */
+    .chart-box .st-emotion-cache-ocqkz7.e1g8pov61 { /* Adjust based on Streamlit's generated classes */
         width: 100% !important;
         height: 100% !important;
     }
-    .chart-box .stPlotlyChart,
-    .chart-box .stDeckGlChart,
-    .chart-box .stVegaLiteChart {
+    .chart-box .stPlotlyChart { /* Target Plotly charts specifically */
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .chart-box .stDeckGlChart { /* Target DeckGL charts specifically */
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .chart-box .stVegaLiteChart { /* Target Vega-Lite charts specifically */
         width: 100% !important;
         height: 100% !important;
     }
@@ -144,10 +143,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
-# --- Dashboard Preview Area - NOW WRAPPING ALL THE MAIN CONTENT ---
-st.markdown("<div class='dashboard-container'>", unsafe_allow_html=True)
-
 # --- Title and Toggle ---
 col1, col2 = st.columns([9, 1])
 with col1:
@@ -156,20 +151,46 @@ with col1:
 with col2:
     st.toggle("🌙 Dark Mode", key="dark_mode")
 
-# Header Section (This was already inside)
+# --- Sidebar Inputs ---
+st.sidebar.header("🎛️ UI Color Inputs")
+
+# Sectioned Inputs
+def ui_section(title, fields):
+    st.sidebar.subheader(f"📁 {title}")
+    return {label: st.sidebar.color_picker(label, default) for label, default in fields}
+
+colors = {}
+colors.update(ui_section("Background Area", [("Background", "#F4F6F8")]))
+colors.update(ui_section("Sidebar Area", [("Sidebar Layout", "#E0E0E0"), ("Sidebar Icons", "#555"), ("Sidebar Texts", "#222")]))
+colors.update(ui_section("Header Area", [("Header Card", "#F3E5F5"), ("Header Title", "#6A1B9A"), ("Header Subtitle", "#8E24AA"), ("Header Buttons", "#BA68C8")]))
+colors.update(ui_section("KPI Area", [("KPI Card", "#AB47BC"), ("KPI Text", "#FFFFFF"), ("KPI Icons", "#CE93D8")]))
+colors.update(ui_section("Chart Area", [("Chart Card", "#B39DDB"), ("Chart Title", "#4A148C"), ("Chart Subtitle", "#7E57C2"), ("Chart Icons", "#CE93D8"), ("Chart Values", "#311B92")]))
+colors.update(ui_section("Button Area", [("Button Primary", "#7C3AED"), ("Button Primary Text", "#FFFFFF"), ("Button Secondary", "#9575CD"), ("Button Secondary Text", "#FFFFFF")]))
+colors.update(ui_section("Tooltip Area", [("Tooltip Card Background", "#FFF9C4"), ("Tooltip Text", "#333")]))
+
+# --- Dynamic CSS Variables from Colors ---
+css_vars = "\n".join([f"--{label.lower().replace(' ', '-')}: {val};" for label, val in colors.items()])
+st.markdown(f"<style>:root {{{css_vars}}}</style>", unsafe_allow_html=True)
+
+# --- Dashboard Preview Area ---
+st.markdown("<div class='dashboard-container'>", unsafe_allow_html=True)
+
+# Header Section
 st.markdown("<div class='header-box'>", unsafe_allow_html=True)
 st.markdown("<h2>Dashboard Header</h2>", unsafe_allow_html=True)
 st.markdown("<p>A quick overview of your data</p>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# KPI Section
+# ---
+### KPI Section
 st.markdown("<div class='section-title'>📊 KPI Overview</div>", unsafe_allow_html=True)
 st.markdown("<div class='kpi-grid'>", unsafe_allow_html=True)
 for label, value in [("Revenue", "$12,345"), ("Conversion", "45.6 %"), ("Users", "1,234")]:
     st.markdown(f"<div class='kpi-card'>{value}<br><span style='font-weight: normal; font-size: 0.9em;'>{label}</span></div>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Chart Section
+# ---
+### Chart Section
 st.markdown("<div class='section-title'>📈 Charts</div>", unsafe_allow_html=True)
 st.markdown("<div class='chart-row'>", unsafe_allow_html=True)
 
@@ -193,15 +214,15 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Button Section
+# ---
+### Button Section
 st.markdown("<div class='section-title'>🧷 Actions</div>", unsafe_allow_html=True)
 st.markdown("<div class='button-row'>", unsafe_allow_html=True)
 st.markdown("<button class='button-primary'>Primary Action</button>", unsafe_allow_html=True)
 st.markdown("<button class='button-secondary'>Secondary Action</button>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Close the dashboard-container BEFORE the footer ---
+# ---
+### Footer
 st.markdown("</div>", unsafe_allow_html=True)
-
-# Footer (This will now be outside the main styled container, which is common)
 st.markdown("<div class='footer'>© All rights reserved by AthiramolPS, Published on June 2025</div>", unsafe_allow_html=True)
