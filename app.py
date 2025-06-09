@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+import numpy as np # Import numpy for generating sample data
 
 # Page config
 st.set_page_config(page_title="DashColor Preview", layout="wide")
@@ -10,6 +12,17 @@ if "dark_mode" not in st.session_state:
 # --- Style Reset and Base CSS ---
 st.markdown("""
 <style>
+    /* This targets Streamlit's main content area to remove default padding */
+    .st-emotion-cache-z5fcl4 {
+        padding-left: 0rem;
+        padding-right: 0rem;
+        padding-top: 0rem;
+    }
+    .st-emotion-cache-1jmve36 { /* Specific to wide layout main content padding */
+        padding-right: 0rem;
+        padding-left: 0rem;
+    }
+
     body { font-family: 'Segoe UI', sans-serif; }
 
     .dashboard-container {
@@ -41,7 +54,7 @@ st.markdown("""
         font-size: 20px;
         font-weight: 600;
         margin: 2rem 0 1rem;
-        color: #333;
+        color: #333; /* This color isn't dynamic, consider making it a color var */
     }
 
     .kpi-grid {
@@ -68,10 +81,32 @@ st.markdown("""
 
     .chart-box {
         flex: 1;
-        height: 140px;
+        height: 180px; /* Increased height to better accommodate charts */
         background-color: var(--chart-card);
         border-radius: 8px;
+        display: flex; /* Use flexbox to center chart */
+        justify-content: center; /* Center chart horizontally */
+        align-items: center; /* Center chart vertically */
+        overflow: hidden; /* Hide overflowing chart elements */
     }
+    /* Style for Streamlit's internal chart divs to fill the chart-box */
+    .chart-box .st-emotion-cache-ocqkz7.e1g8pov61 { /* Adjust based on Streamlit's generated classes */
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .chart-box .stPlotlyChart { /* Target Plotly charts specifically */
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .chart-box .stDeckGlChart { /* Target DeckGL charts specifically */
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .chart-box .stVegaLiteChart { /* Target Vega-Lite charts specifically */
+        width: 100% !important;
+        height: 100% !important;
+    }
+
 
     .button-row {
         display: flex;
@@ -146,28 +181,48 @@ st.markdown("<h2>Dashboard Header</h2>", unsafe_allow_html=True)
 st.markdown("<p>A quick overview of your data</p>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# KPI Section
+# ---
+### KPI Section
 st.markdown("<div class='section-title'>📊 KPI Overview</div>", unsafe_allow_html=True)
 st.markdown("<div class='kpi-grid'>", unsafe_allow_html=True)
 for label, value in [("Revenue", "$12,345"), ("Conversion", "45.6 %"), ("Users", "1,234")]:
     st.markdown(f"<div class='kpi-card'>{value}<br><span style='font-weight: normal; font-size: 0.9em;'>{label}</span></div>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Chart Section
+# ---
+### Chart Section
 st.markdown("<div class='section-title'>📈 Charts</div>", unsafe_allow_html=True)
 st.markdown("<div class='chart-row'>", unsafe_allow_html=True)
-st.markdown("<div class='chart-box'></div>", unsafe_allow_html=True)
-st.markdown("<div class='chart-box'></div>", unsafe_allow_html=True)
-st.markdown("<div class='chart-box'></div>", unsafe_allow_html=True)
+
+# Chart 1: Line Chart
+st.markdown("<div class='chart-box'>", unsafe_allow_html=True)
+chart_data1 = pd.DataFrame(np.random.randn(20, 3), columns=['A', 'B', 'C'])
+st.line_chart(chart_data1)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Button Section
+# Chart 2: Bar Chart
+st.markdown("<div class='chart-box'>", unsafe_allow_html=True)
+chart_data2 = pd.DataFrame(np.random.randint(0, 100, size=(20, 3)), columns=['X', 'Y', 'Z'])
+st.bar_chart(chart_data2)
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Chart 3: Area Chart
+st.markdown("<div class='chart-box'>", unsafe_allow_html=True)
+chart_data3 = pd.DataFrame(np.random.randn(20, 2), columns=['Data1', 'Data2'])
+st.area_chart(chart_data3)
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+# ---
+### Button Section
 st.markdown("<div class='section-title'>🧷 Actions</div>", unsafe_allow_html=True)
 st.markdown("<div class='button-row'>", unsafe_allow_html=True)
 st.markdown("<button class='button-primary'>Primary Action</button>", unsafe_allow_html=True)
 st.markdown("<button class='button-secondary'>Secondary Action</button>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Footer
+# ---
+### Footer
 st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<div class='footer'>© All rights reserved by AthiramolPS, Published on June 2025</div>", unsafe_allow_html=True)
